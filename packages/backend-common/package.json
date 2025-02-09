@@ -4,9 +4,11 @@
   "description": "",
   "main": "index.js",
   "exports" : {
-    "./config" : "./src/index.ts"
+    "./config" : "./dist/index.js"
   },
-  "scripts": {},
+  "scripts": {
+    "build": "tsc -b"
+  },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^22.12.0"

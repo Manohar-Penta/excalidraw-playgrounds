@@ -1,6 +1,5 @@
 import "dotenv/config";
 
-// console.log(process.env);
-const JWT_SECRET = process.env.JWT_SECRET as string;
+const JWT_SECRET: string = process.env.JWT_SECRET ?? "super secret";
 
 export { JWT_SECRET };

@@ -1,6 +1,6 @@
 import { WebSocketServer, type WebSocket } from "ws";
 import { verify } from "jsonwebtoken";
-// import "dotenv/config";
+import "dotenv/config";
 import { JWT_SECRET } from "@repo/backend-common/config";
 import { prisma } from "@repo/db";
 
@@ -15,7 +15,7 @@ wss.on("connection", (ws: WebSocket, req) => {
     const queryParams = new URLSearchParams(url?.split("?")[1]);
     const token = queryParams.get("token") ?? "";
 
-    const data = verify(token, JWT_SECRET) as {
+    const data = verify(token, JWT_SECRET as string) as unknown as {
       userId: string;
     };
 
@@ -87,7 +87,7 @@ wss.on("connection", (ws: WebSocket, req) => {
             // @ts-expect-error
             userRooms[ws.userId].push(room);
           }
-          ws.send(`Joined the room ${room}`);
+          // ws.send(`Joined the room ${room}`);
         } catch (e) {
           ws.send("Room doesn't exist");
         }

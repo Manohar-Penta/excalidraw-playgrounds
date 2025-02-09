@@ -29,13 +29,13 @@ type Shape =
     };
 
 class Canvas {
-  private canvas: HTMLCanvasElement;
+  public canvas: HTMLCanvasElement;
   private roomId: string;
   private socket: WebSocket;
   private clicked: boolean;
   private startX: number;
   private startY: number;
-  private existingShapes: Shape[];
+  public existingShapes: Shape[];
   private selectedTool: "none" | "rect" | "circle" | "pencil";
   private offsetX: number;
   private offsetY: number;
@@ -62,15 +62,18 @@ class Canvas {
   private async initDraw() {
     const ctx = this.canvas.getContext("2d");
 
+    if (!ctx) {
+      return;
+    }
+
     try {
       this.existingShapes = await this.getExistingShapes(this.roomId);
+      // console.log(this.existingShapes);
     } catch (e) {
       console.log(e);
     }
 
-    if (!ctx) {
-      return;
-    }
+    this.clearCanvas(this.existingShapes, this.canvas, ctx);
 
     this.socket.onmessage = (event) => {
       try {
@@ -89,10 +92,7 @@ class Canvas {
       }
     };
 
-    this.clearCanvas(this.existingShapes, this.canvas, ctx);
-
     this.canvas.addEventListener("mousedown", (e) => {
-      console.log(this.selectedTool);
       this.clicked = true;
       this.startX = e.clientX;
       this.startY = e.clientY;
@@ -155,7 +155,6 @@ class Canvas {
 
     this.canvas.addEventListener("wheel", (e) => {
       e.preventDefault();
-      console.log(e.deltaY);
       this.scale -= e.deltaY / 5000;
       if (this.scale > 10) this.scale = 10;
       if (this.scale < 0.1) this.scale = 0.1;
@@ -214,7 +213,7 @@ class Canvas {
     );
   }
 
-  private clearCanvas(
+  public clearCanvas(
     existingShapes: Shape[],
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D
@@ -228,15 +227,18 @@ class Canvas {
 
     existingShapes.map((shape) => {
       ctx.strokeStyle = shape.stoke;
-      if (shape.fill) ctx.fillStyle = shape.fill;
+      if (shape.fill) {
+        ctx.fillStyle = shape.fill;
+      }
       if (shape.type === "rect") {
-        if (shape.fill)
+        if (shape.fill) {
           ctx.fillRect(
             (shape.x + this.offsetX) * this.scale,
             (shape.y + this.offsetY) * this.scale,
             shape.width * this.scale,
             shape.height * this.scale
           );
+        }
         ctx.strokeRect(
           (shape.x + this.offsetX) * this.scale,
           (shape.y + this.offsetY) * this.scale,
@@ -252,7 +254,9 @@ class Canvas {
           0,
           Math.PI * 2
         );
-        if (shape.fill) ctx.fill();
+        if (shape.fill) {
+          ctx.fill();
+        }
         ctx.stroke();
         ctx.closePath();
       } else if (shape.type === "pencil") {
@@ -269,6 +273,7 @@ class Canvas {
         ctx.closePath();
       }
     });
+    // console.log(ctx);
   }
 
   private async getExistingShapes(roomId: string) {
@@ -282,6 +287,7 @@ class Canvas {
         return JSON.parse(x.message).shape;
       });
 
+      // console.log(shapes);
       return shapes;
     } catch (error) {
       return [];

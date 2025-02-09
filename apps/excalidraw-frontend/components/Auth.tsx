@@ -2,7 +2,7 @@
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { use, useState } from "react";
+import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
 export function Auth({ isSignIn }: { isSignIn: boolean }) {
@@ -43,7 +43,7 @@ export function Auth({ isSignIn }: { isSignIn: boolean }) {
           />
         </label>
         <button
-          onClick={async (e) => {
+          onClick={async () => {
             try {
               const res = await axios.post(
                 `${process.env.NEXT_PUBLIC_HTTP_BACKEND}/api/auth/${isSignIn ? "signin" : "signup"}`,

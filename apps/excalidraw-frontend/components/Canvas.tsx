@@ -9,7 +9,6 @@ import {
   PencilIcon,
   BanIcon,
   PaintBucketIcon,
-  Ban,
   EraserIcon,
 } from "lucide-react";
 import { ColorPicker } from "./ui/color-picker";
