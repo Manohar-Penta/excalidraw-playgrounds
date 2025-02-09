@@ -8,7 +8,7 @@ type Shape =
       width: number;
       height: number;
       stoke: string;
-      fill: string;
+      fill: string | null;
     }
   | {
       type: "circle";
@@ -16,7 +16,7 @@ type Shape =
       centerY: number;
       radius: number;
       stoke: string;
-      fill: string;
+      fill: string | null;
     }
   | {
       type: "pencil";
@@ -25,7 +25,7 @@ type Shape =
       endX: number;
       endY: number;
       stoke: string;
-      fill: string;
+      fill: string | null;
     };
 
 class Canvas {
@@ -39,8 +39,9 @@ class Canvas {
   private selectedTool: "none" | "rect" | "circle" | "pencil";
   private offsetX: number;
   private offsetY: number;
-  private fill: string;
+  private fill: string | null;
   private stroke: string;
+  private scale: number = 1;
 
   constructor(canvas: HTMLCanvasElement, roomId: string, socket: WebSocket) {
     this.canvas = canvas;
@@ -53,7 +54,7 @@ class Canvas {
     this.selectedTool = "none";
     this.offsetX = 0;
     this.offsetY = 0;
-    this.fill = "rgba(0, 0, 0)";
+    this.fill = null;
     this.stroke = "rgba(255, 255, 255)";
     this.initDraw();
   }
@@ -106,30 +107,30 @@ class Canvas {
       if (this.selectedTool === "rect") {
         shape = {
           type: "rect",
-          x: this.startX - this.offsetX,
-          y: this.startY - this.offsetY,
-          height,
-          width,
+          x: this.startX / this.scale - this.offsetX,
+          y: this.startY / this.scale - this.offsetY,
+          height: height / this.scale,
+          width: width / this.scale,
           fill: this.fill,
           stoke: this.stroke,
         };
       } else if (this.selectedTool === "circle") {
-        const radius = Math.max(width, height) / 2;
+        const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
         shape = {
           type: "circle",
-          radius: radius,
-          centerX: this.startX + radius - this.offsetX,
-          centerY: this.startY + radius - this.offsetY,
+          radius: radius / this.scale,
+          centerX: (this.startX + e.clientX) / (2 * this.scale) - this.offsetX,
+          centerY: (this.startY + e.clientY) / (2 * this.scale) - this.offsetY,
           fill: this.fill,
           stoke: this.stroke,
         };
       } else if (this.selectedTool === "pencil") {
         shape = {
           type: "pencil",
-          startX: this.startX - this.offsetX,
-          startY: this.startY - this.offsetY,
-          endX: e.clientX - this.offsetX,
-          endY: e.clientY - this.offsetY,
+          startX: this.startX / this.scale - this.offsetX,
+          startY: this.startY / this.scale - this.offsetY,
+          endX: e.clientX / this.scale - this.offsetX,
+          endY: e.clientY / this.scale - this.offsetY,
           fill: this.fill,
           stoke: this.stroke,
         };
@@ -152,6 +153,15 @@ class Canvas {
       );
     });
 
+    this.canvas.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      console.log(e.deltaY);
+      this.scale -= e.deltaY / 5000;
+      if (this.scale > 10) this.scale = 10;
+      if (this.scale < 0.1) this.scale = 0.1;
+      this.clearCanvas(this.existingShapes, this.canvas, ctx);
+    });
+
     this.canvas.addEventListener("mousemove", (e) => {
       if (this.clicked) {
         const ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -159,18 +169,18 @@ class Canvas {
         const height = e.clientY - this.startY;
         this.clearCanvas(this.existingShapes, this.canvas, ctx);
         ctx.strokeStyle = this.stroke ?? "rgba(255, 255, 255)";
-        ctx.fillStyle = this.fill ?? "rgba(0, 0, 0)";
+        if (this.fill) ctx.fillStyle = this.fill;
 
         if (this.selectedTool === "rect") {
-          ctx.fillRect(this.startX, this.startY, width, height);
+          if (this.fill) ctx.fillRect(this.startX, this.startY, width, height);
           ctx.strokeRect(this.startX, this.startY, width, height);
         } else if (this.selectedTool === "circle") {
-          const radius = Math.max(width, height) / 2;
-          const centerX = this.startX + radius;
-          const centerY = this.startY + radius;
+          const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
+          const centerX = (this.startX + e.clientX) / 2;
+          const centerY = (this.startY + e.clientY) / 2;
           ctx.beginPath();
           ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-          ctx.fill();
+          if (this.fill) ctx.fill();
           ctx.stroke();
           ctx.closePath();
         } else if (this.selectedTool === "pencil") {
@@ -204,15 +214,6 @@ class Canvas {
     );
   }
 
-  public setSelectedTool(tool: "none" | "rect" | "circle" | "pencil") {
-    this.selectedTool = tool;
-  }
-
-  public setStrokeFill(stroke: string, fill: string) {
-    this.stroke = stroke;
-    this.fill = fill;
-  }
-
   private clearCanvas(
     existingShapes: Shape[],
     canvas: HTMLCanvasElement,
@@ -227,27 +228,27 @@ class Canvas {
 
     existingShapes.map((shape) => {
       ctx.strokeStyle = shape.stoke;
-      ctx.fillStyle = shape.fill;
+      if (shape.fill) ctx.fillStyle = shape.fill;
       if (shape.type === "rect") {
         if (shape.fill)
           ctx.fillRect(
-            shape.x + this.offsetX,
-            shape.y + this.offsetY,
-            shape.width,
-            shape.height
+            (shape.x + this.offsetX) * this.scale,
+            (shape.y + this.offsetY) * this.scale,
+            shape.width * this.scale,
+            shape.height * this.scale
           );
         ctx.strokeRect(
-          shape.x + this.offsetX,
-          shape.y + this.offsetY,
-          shape.width,
-          shape.height
+          (shape.x + this.offsetX) * this.scale,
+          (shape.y + this.offsetY) * this.scale,
+          shape.width * this.scale,
+          shape.height * this.scale
         );
       } else if (shape.type === "circle") {
         ctx.beginPath();
         ctx.arc(
-          shape.centerX + this.offsetX,
-          shape.centerY + this.offsetY,
-          shape.radius,
+          (shape.centerX + this.offsetX) * this.scale,
+          (shape.centerY + this.offsetY) * this.scale,
+          shape.radius * this.scale,
           0,
           Math.PI * 2
         );
@@ -256,8 +257,14 @@ class Canvas {
         ctx.closePath();
       } else if (shape.type === "pencil") {
         ctx.beginPath();
-        ctx.moveTo(shape.startX + this.offsetX, shape.startY + this.offsetY);
-        ctx.lineTo(shape.endX + this.offsetX, shape.endY + this.offsetY);
+        ctx.moveTo(
+          (shape.startX + this.offsetX) * this.scale,
+          (shape.startY + this.offsetY) * this.scale
+        );
+        ctx.lineTo(
+          (shape.endX + this.offsetX) * this.scale,
+          (shape.endY + this.offsetY) * this.scale
+        );
         ctx.stroke();
         ctx.closePath();
       }
@@ -279,6 +286,15 @@ class Canvas {
     } catch (error) {
       return [];
     }
+  }
+
+  public setSelectedTool(tool: "none" | "rect" | "circle" | "pencil") {
+    this.selectedTool = tool;
+  }
+
+  public setStrokeFill(stroke: string, fill: string | null) {
+    this.stroke = stroke;
+    this.fill = fill;
   }
 }
 

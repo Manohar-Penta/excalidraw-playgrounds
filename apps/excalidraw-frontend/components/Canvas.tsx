@@ -8,6 +8,9 @@ import {
   Circle,
   PencilIcon,
   BanIcon,
+  PaintBucketIcon,
+  Ban,
+  EraserIcon,
 } from "lucide-react";
 import { ColorPicker } from "./ui/color-picker";
 import { useRouter } from "next/navigation";
@@ -20,7 +23,7 @@ export function CanvasComponent(props: { roomId: string }) {
   const [state, setState] = useState<Tool>("none");
   const [main, setMain] = useState<Canvas | null>(null);
   const [stroke, setStroke] = useState<string>("#ffffff");
-  const [fill, setFill] = useState<string>("#000000");
+  const [fill, setFill] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -98,18 +101,33 @@ export function CanvasComponent(props: { roomId: string }) {
             <ColorPicker
               value={stroke}
               onChange={setStroke}
-              className="border-4 size-[1.5rem]"
+              className={`border-4 size-[1.5rem]`}
             />
           </li>
           <li>
             <ColorPicker
               onChange={setFill}
-              value={fill}
-              className="border-4 size-[1.5rem]"
+              value={fill ?? "white"}
+              className={`border-4 size-[1.5rem]`}
+            />
+          </li>
+          <li className="relative">
+            <BanIcon
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-8 z-0"
+              color="gray"
+              onClick={() => {
+                setFill(null);
+              }}
+            />
+            <PaintBucketIcon
+              className="border- size-[1.5rem] z-10"
+              onClick={() => {
+                setFill(null);
+              }}
             />
           </li>
           <li>
-            <BanIcon
+            <EraserIcon
               className="border- size-[1.5rem]"
               onClick={() => {
                 main?.clearAll();
