@@ -7,7 +7,8 @@
     "./config" : "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "dev": "tsc -b -w --preserveWatchOutput"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",

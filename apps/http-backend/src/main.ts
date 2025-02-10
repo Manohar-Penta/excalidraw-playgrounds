@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express, { Request, Response } from "express";
 import authController from "./controllers/authController";
 import { prisma } from "@repo/db";

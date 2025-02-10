@@ -3,14 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "exports" : {
-    "." : "./src/main.ts"
+  "exports": {
+    ".": "./dist/main.js"
   },
   "scripts": {
-    "db:init" : "prisma init",
-    "db:migrate" : "prisma migrate dev",
+    "db:init": "prisma init",
+    "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
-    "db:studio" : "prisma studio"
+    "db:studio": "prisma studio",
+    "build": "prisma generate && tsc -b",
+    "dev": "prisma generate && tsc -b"
   },
   "keywords": [],
   "author": "",
@@ -19,8 +21,9 @@
     "@prisma/client": "^6.2.1"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.13.1",
     "prisma": "^6.2.1",
-    "typescript": "^5.7.3",
-    "@repo/typescript-config": "workspace:*"
+    "typescript": "^5.7.3"
   }
 }

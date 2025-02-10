@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "exports": {
-    "./zod-schemas": "./src/types.ts"
+    "./zod-schemas": "./dist/types.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -b",
+    "dev": "tsc -b -w --preserveWatchOutput"
   },
   "keywords": [],
   "author": "",
