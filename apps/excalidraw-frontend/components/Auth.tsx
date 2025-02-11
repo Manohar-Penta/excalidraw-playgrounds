@@ -32,7 +32,7 @@ export function Auth({ isSignIn }: { isSignIn: boolean }) {
         <label className="block my-2 md:my-4">
           <p className="">Password</p>
           <input
-            type="text"
+            type="password"
             // placeholder="Password"
             name="password"
             className="border rounded p-2 w-full"
@@ -44,21 +44,35 @@ export function Auth({ isSignIn }: { isSignIn: boolean }) {
         </label>
         <button
           onClick={async () => {
-            try {
-              const res = await axios.post(
-                `${process.env.NEXT_PUBLIC_HTTP_BACKEND}/api/auth/${isSignIn ? "signin" : "signup"}`,
-                {
-                  email,
-                  password,
+            await toast.promise(
+              async () => {
+                try {
+                  const res = await axios.post(
+                    `${process.env.NEXT_PUBLIC_HTTP_BACKEND}/api/auth/${isSignIn ? "signin" : "signup"}`,
+                    {
+                      email,
+                      password,
+                    }
+                  );
+                  if (!res.data.token) throw "Invalid Credentials";
+                  localStorage.setItem("token", res.data.token);
+                  router.push("/home");
+                } catch (error: any) {
+                  const err =
+                    error.response.data.msg ?? "Something went Wrong!!";
+                  throw err;
                 }
-              );
-              if (!res.data.token) throw "Invalid Credentials";
-              localStorage.setItem("token", res.data.token);
-              router.push("/home");
-            } catch (error: any) {
-              const err = error.response.data.msg ?? "Something went Wrong!!";
-              toast(err);
-            }
+              },
+              {
+                pending: "Authenticating...",
+                error: {
+                  render({ data }: { data: string }) {
+                    console.log(data);
+                    return <p>{data}</p>;
+                  },
+                },
+              }
+            );
           }}
           className="text-background mx-auto border rounded p-1 px-2 block bg-blue-700 my-1 w-full"
         >

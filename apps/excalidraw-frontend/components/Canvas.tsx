@@ -15,7 +15,6 @@ import {
 import { ColorPicker } from "./ui/color-picker";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
-import { cx } from "class-variance-authority";
 
 type Tool = "none" | "rect" | "circle" | "pencil" | "text";
 
@@ -160,7 +159,7 @@ export function CanvasComponent(props: { roomId: string }) {
               }}
             />
             <PaintBucketIcon
-              className="border- size-[1.5rem] z-10"
+              className="border size-[1.5rem] z-10"
               onClick={() => {
                 setFill(null);
               }}
@@ -168,7 +167,7 @@ export function CanvasComponent(props: { roomId: string }) {
           </li>
           <li>
             <EraserIcon
-              className="border- size-[1.5rem]"
+              className="border size-[1.5rem]"
               onClick={() => {
                 main?.clearAll();
               }}

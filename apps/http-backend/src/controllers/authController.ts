@@ -1,10 +1,5 @@
 import express, { Request, Response } from "express";
-import { auth } from "../middlewares/auth";
-import {
-  CreateRoomSchema,
-  CreateUserSchema,
-  SigninSchema,
-} from "@repo/common/zod-schemas";
+import { CreateUserSchema, SigninSchema } from "@repo/common/zod-schemas";
 import { sign } from "jsonwebtoken";
 import "dotenv/config";
 import { JWT_SECRET } from "@repo/backend-common/config";

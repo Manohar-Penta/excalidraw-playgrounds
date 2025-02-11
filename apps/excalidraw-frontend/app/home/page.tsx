@@ -129,24 +129,31 @@ export default function Page() {
       </div>
       <hr />
       <div className="flex flex-wrap items-center gap-2 p-4">
-        {rooms.map((room) => {
-          return (
-            <div key={room.id} className="border-2 rounded-md p-1 m-2">
-              <a
-                href={`/${room.id}`}
-                className="text-center block text-xl md:text-2xl p-4 md:p-6 max-w-100px overflow-hidden text-ellipsis whitespace-nowrap"
-              >
-                {room.slug}
-              </a>
-              <hr className="h-[2px] border border-gray-500 bg-gray-500" />
-              <p className="text-xs text-right">created at:</p>
-              <p className="text-xs text-right">
-                {new Date(room.createdAt).toDateString()}
-              </p>
-              <ToastContainer />
-            </div>
-          );
-        })}
+        {rooms.length > 0 &&
+          rooms.map((room) => {
+            return (
+              <div key={room.id} className="border-2 rounded-md p-1 m-2">
+                <a
+                  href={`/${room.id}`}
+                  className="text-center block text-xl md:text-2xl p-4 md:p-6 max-w-100px overflow-hidden text-ellipsis whitespace-nowrap"
+                >
+                  {room.slug}
+                </a>
+                <hr className="h-[2px] border border-gray-500 bg-gray-500" />
+                <p className="text-xs text-right">created at:</p>
+                <p className="text-xs text-right">
+                  {new Date(room.createdAt).toDateString()}
+                </p>
+                <ToastContainer />
+              </div>
+            );
+          })}
+        {rooms.length == 0 && (
+          <p className="p-4 text-center mx-auto text-xl h-[80vh] flex justify-center items-center">
+            Use the <span className="border-2 p-2 rounded-md m-2">Create</span>{" "}
+            button to create your first playground...
+          </p>
+        )}
       </div>
     </div>
   );
