@@ -2,6 +2,12 @@
 
 _A collaborative digital White Board tool built for real-time editing and shared functionality._
 
+[Live](https://playgrounds-omega.vercel.app)
+
+## Demo
+
+![Demo](https://github.com/user-attachments/assets/87d683ee-5736-4d50-838b-85312a8e2f35)
+
 ## About the repo
 
 Excalidraw Playgrounds repo is a **Turborepo(monorepo)** that consists of three main applications, along with shared packages used across these applications. It provides a seamless real-time collaborative drawing experience, enabling multiple users to create and edit diagrams simultaneously.
