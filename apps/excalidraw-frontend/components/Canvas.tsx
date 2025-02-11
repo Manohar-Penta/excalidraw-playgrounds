@@ -159,7 +159,8 @@ export function CanvasComponent(props: { roomId: string }) {
               }}
             />
             <PaintBucketIcon
-              className="border size-[1.5rem] z-10"
+              className="size-[1.5rem] z-10"
+              color="blue"
               onClick={() => {
                 setFill(null);
               }}
@@ -167,7 +168,8 @@ export function CanvasComponent(props: { roomId: string }) {
           </li>
           <li>
             <EraserIcon
-              className="border size-[1.5rem]"
+              className="size-[1.5rem]"
+              color="black"
               onClick={() => {
                 main?.clearAll();
               }}
