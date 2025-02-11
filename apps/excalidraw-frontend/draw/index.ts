@@ -7,7 +7,7 @@ type Shape =
       y: number;
       width: number;
       height: number;
-      stoke: string;
+      stroke: string;
       fill: string | null;
     }
   | {
@@ -15,7 +15,7 @@ type Shape =
       centerX: number;
       centerY: number;
       radius: number;
-      stoke: string;
+      stroke: string;
       fill: string | null;
     }
   | {
@@ -24,7 +24,15 @@ type Shape =
       startY: number;
       endX: number;
       endY: number;
-      stoke: string;
+      stroke: string;
+      fill: string | null;
+    }
+  | {
+      type: "text";
+      startX: number;
+      startY: number;
+      text: string;
+      stroke: string;
       fill: string | null;
     };
 
@@ -36,7 +44,7 @@ class Canvas {
   private startX: number;
   private startY: number;
   public existingShapes: Shape[];
-  private selectedTool: "none" | "rect" | "circle" | "pencil";
+  private selectedTool: "none" | "rect" | "circle" | "pencil" | "text";
   private offsetX: number;
   private offsetY: number;
   private fill: string | null;
@@ -112,7 +120,7 @@ class Canvas {
           height: height / this.scale,
           width: width / this.scale,
           fill: this.fill,
-          stoke: this.stroke,
+          stroke: this.stroke,
         };
       } else if (this.selectedTool === "circle") {
         const radius = Math.max(Math.abs(width), Math.abs(height)) / 2;
@@ -122,7 +130,7 @@ class Canvas {
           centerX: (this.startX + e.clientX) / (2 * this.scale) - this.offsetX,
           centerY: (this.startY + e.clientY) / (2 * this.scale) - this.offsetY,
           fill: this.fill,
-          stoke: this.stroke,
+          stroke: this.stroke,
         };
       } else if (this.selectedTool === "pencil") {
         shape = {
@@ -132,7 +140,7 @@ class Canvas {
           endX: e.clientX / this.scale - this.offsetX,
           endY: e.clientY / this.scale - this.offsetY,
           fill: this.fill,
-          stoke: this.stroke,
+          stroke: this.stroke,
         };
       }
 
@@ -226,7 +234,7 @@ class Canvas {
     ctx.lineWidth = 5;
 
     existingShapes.map((shape) => {
-      ctx.strokeStyle = shape.stoke;
+      ctx.strokeStyle = shape.stroke;
       if (shape.fill) {
         ctx.fillStyle = shape.fill;
       }
@@ -271,9 +279,45 @@ class Canvas {
         );
         ctx.stroke();
         ctx.closePath();
+      } else if (shape.type === "text") {
+        ctx.font = `italic ${this.scale * 30}px sans-serif`;
+        if (shape.stroke) {
+          ctx.fillStyle = shape.stroke;
+        }
+        ctx.fillText(
+          shape.text,
+          (shape.startX + this.offsetX) * this.scale,
+          (shape.startY + this.offsetY) * this.scale
+        );
       }
     });
     // console.log(ctx);
+  }
+
+  public addText(x: number, y: number, text: string) {
+    const shape: Shape = {
+      type: "text",
+      startX: x / this.scale - this.offsetX,
+      startY: y / this.scale - this.offsetY,
+      text,
+      stroke: this.stroke,
+      fill: this.fill,
+    };
+    this.existingShapes.push(shape);
+
+    this.socket.send(
+      JSON.stringify({
+        type: "messageRoom",
+        message: JSON.stringify({ shape }),
+        room: this.roomId,
+      })
+    );
+
+    this.clearCanvas(
+      this.existingShapes,
+      this.canvas,
+      this.canvas.getContext("2d") as CanvasRenderingContext2D
+    );
   }
 
   private async getExistingShapes(roomId: string) {
@@ -294,7 +338,7 @@ class Canvas {
     }
   }
 
-  public setSelectedTool(tool: "none" | "rect" | "circle" | "pencil") {
+  public setSelectedTool(tool: "none" | "rect" | "circle" | "pencil" | "text") {
     this.selectedTool = tool;
   }
 
