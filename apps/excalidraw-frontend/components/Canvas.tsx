@@ -10,7 +10,7 @@ import {
   BanIcon,
   PaintBucketIcon,
   EraserIcon,
-  Text,
+  TypeIcon,
 } from "lucide-react";
 import { ColorPicker } from "./ui/color-picker";
 import { useRouter } from "next/navigation";
@@ -58,6 +58,10 @@ export function CanvasComponent(props: { roomId: string }) {
 
     const main = new Canvas(canvasRef.current, props.roomId, socket);
     setMain(main);
+
+    () => {
+      socket.close();
+    };
   }, []);
 
   useEffect(() => {
@@ -127,7 +131,7 @@ export function CanvasComponent(props: { roomId: string }) {
             />
           </li>
           <li onClick={() => setState("text")}>
-            <Text
+            <TypeIcon
               size={"1.5rem"}
               color={"black"}
               className={state == "text" ? "bg-gray-400 rounded p-[1px]" : ""}
