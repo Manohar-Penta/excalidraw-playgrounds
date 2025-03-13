@@ -28,13 +28,12 @@ app.post("/signin", async (req, res) => {
 
 app.post("/signup", async (req, res) => {
   try {
-    const data = CreateUserSchema.parse(req.body);
+    const userData = CreateUserSchema.parse(req.body);
 
     const user = await prisma.user.create({
-      data: { ...data },
+      data: { ...userData },
     });
 
-    // console.log(JWT_SECRET);
     const token = sign({ userId: user.id }, JWT_SECRET);
     res.status(200).json({ token });
   } catch (e) {
