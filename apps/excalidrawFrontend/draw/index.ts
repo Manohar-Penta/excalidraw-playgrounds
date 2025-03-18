@@ -76,12 +76,12 @@ class Canvas {
 
     try {
       this.existingShapes = await this.getExistingShapes(this.roomId);
-      // console.log(this.existingShapes);
+      console.log(this.existingShapes);
     } catch (e) {
       console.log(e);
     }
 
-    this.clearCanvas(this.existingShapes, this.canvas, ctx);
+    this.clearCanvas();
 
     this.socket.onmessage = (event) => {
       try {
@@ -89,10 +89,10 @@ class Canvas {
         if (message.shape) {
           if (message.shape === "clear") {
             this.existingShapes = [];
-            this.clearCanvas(this.existingShapes, this.canvas, ctx);
+            this.clearCanvas();
           } else {
             this.existingShapes.push(message.shape);
-            this.clearCanvas(this.existingShapes, this.canvas, ctx);
+            this.clearCanvas();
           }
         }
       } catch (e) {
@@ -166,7 +166,7 @@ class Canvas {
       this.scale -= e.deltaY / 5000;
       if (this.scale > 10) this.scale = 10;
       if (this.scale < 0.1) this.scale = 0.1;
-      this.clearCanvas(this.existingShapes, this.canvas, ctx);
+      this.clearCanvas();
     });
 
     this.canvas.addEventListener("mousemove", (e) => {
@@ -174,7 +174,7 @@ class Canvas {
         const ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
         const width = e.clientX - this.startX;
         const height = e.clientY - this.startY;
-        this.clearCanvas(this.existingShapes, this.canvas, ctx);
+        this.clearCanvas();
         ctx.strokeStyle = this.stroke ?? "rgba(255, 255, 255)";
         if (this.fill) ctx.fillStyle = this.fill;
 
@@ -198,6 +198,7 @@ class Canvas {
         } else {
           this.offsetX += e.movementX;
           this.offsetY += e.movementY;
+          this.clearCanvas();
         }
       }
     });
@@ -214,18 +215,14 @@ class Canvas {
       })
     );
     this.existingShapes = [];
-    this.clearCanvas(
-      this.existingShapes,
-      this.canvas,
-      this.canvas.getContext("2d") as CanvasRenderingContext2D
-    );
+    this.clearCanvas();
   }
 
-  public clearCanvas(
-    existingShapes: Shape[],
-    canvas: HTMLCanvasElement,
-    ctx: CanvasRenderingContext2D
-  ) {
+  public clearCanvas() {
+    const existingShapes = this.existingShapes;
+    const canvas = this.canvas;
+    const ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "rgba(0, 0, 0)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -313,11 +310,7 @@ class Canvas {
       })
     );
 
-    this.clearCanvas(
-      this.existingShapes,
-      this.canvas,
-      this.canvas.getContext("2d") as CanvasRenderingContext2D
-    );
+    this.clearCanvas();
   }
 
   private async getExistingShapes(roomId: string) {

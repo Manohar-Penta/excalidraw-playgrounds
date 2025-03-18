@@ -1,0 +1,21 @@
+FROM node:alpine
+
+WORKDIR /usr/src/app
+RUN npm install -g pnpm
+
+COPY package*.json ./
+COPY ./packages ./packages
+COPY ./turbo.json ./turbo.json
+COPY ./pnpm-lock.yaml ./pnpm-lock.yaml
+COPY ./.npmrc ./.npmrc
+COPY ./pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY ./apps/excalidrawFrontend ./apps/excalidrawFrontend
+
+RUN pnpm install --frozen-lockfile
+RUN pnpm run db:generate
+
+RUN pnpm run build --filter=excalidraw-frontend
+
+EXPOSE 3000
+
+CMD ["pnpm", "run", "start", "--filter=excalidraw-frontend"]
